@@ -26,6 +26,11 @@ services:
       MERCURE_EXTRA_DIRECTIVES: demo
 
   database:
+    # image: kartoza/postgis:13
+    # environment:
+    #   - POSTGRES_DB=matchistador
+    #   - POSTGRES_PASSWORD=lamar291120
+    #   - POSTGRES_USER=pikloo
     ports:
       - target: 5432
         published: 5432
