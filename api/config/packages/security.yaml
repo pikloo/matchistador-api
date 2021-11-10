@@ -1,25 +1,54 @@
 security:
-    # https://symfony.com/doc/current/security/experimental_authenticators.html
     enable_authenticator_manager: true
+
+    password_hashers:
+        App\Entity\User:
+            algorithm: auto
+
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        users_in_memory: { memory: null }
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+        jwt: 
+            lexik_jwt: ~
+
     firewalls:
         dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            pattern: ^/_(profiler|wdt)
             security: false
-        main:
-            lazy: true
-            provider: users_in_memory
+        refresh:
+            pattern: ^/token/refresh
+            stateless: true
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#firewalls-authentication
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+        login:
+            pattern:  ^/login
+            stateless: true
+            provider: app_user_provider
+            json_login:
+                check_path: /login
+                username_path: email
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            #! A réactiver quand le processus d'inscription sera terminé
+            # user_checker: App\Security\UserChecker
 
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
+        api:
+            pattern: ^/
+            stateless: true
+            provider: jwt
+            jwt: ~
+  
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/token, roles: PUBLIC_ACCESS }
+        - { path: ^/send_forget_pwd_email, roles: PUBLIC_ACCESS }
+        - { path: ^/reset_pwd, roles: PUBLIC_ACCESS }
+        - { path: ^/check_reset_pwd_token, roles: PUBLIC_ACCESS }
+        - { path: ^/trackslist/initialize, roles: ROLE_USER }
+        - { path: ^/trackslist/synchronize, roles: ROLE_USER }
+        - { path: ^/activation_renew, roles: ROLE_USER }

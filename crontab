@@ -1,0 +1,5 @@
+*/2 * * * *  /usr/bin/php /var/www/html/matchistador-api/api/bin/console a:m:s >/dev/null 2>&1
+*/20 * * * *  /usr/bin/php /var/www/html/matchistador-api/api/bin/console a:a:p >/dev/null 2>&1
+*/20 * * * *  /usr/bin/php /var/www/html/matchistador-api/api/bin/console a:u:p >/dev/null 2>&1
+*/20 * * * *  /usr/bin/php /var/www/html/matchistador-api/api/bin/console a:d:p >/dev/null 2>&1
+*/2 * * * *  /usr/bin/php /var/www/html/matchistador-api/api/bin/console a:a:u >/dev/null 2>&1

@@ -135,6 +135,9 @@
     "egulias/email-validator": {
         "version": "3.1.2"
     },
+    "fakerphp/faker": {
+        "version": "v1.16.0"
+    },
     "fig/link-util": {
         "version": "1.2.0"
     },
