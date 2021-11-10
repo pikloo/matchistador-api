@@ -2,10 +2,18 @@ api_platform:
     resource: .
     type: api_platform
 
-authentication_token:
-    path: /login
-    methods: ['POST']
+api_user_match:
+    path: '/users/{id}/matchs'
+    methods:  ['GET']
+    defaults:
+        _controller: App\Controller\UserMatchCollectionController:inverseMatch
+        _api_resource_class: 'App\Entity\UserHasMatchup'
+        _api_collection_operation_name: 'api_user_match'
 
-gesdinet_jwt_refresh_token:
-    path: /login/refresh
-    controller: gesdinet.jwtrefreshtoken::refresh
+api_match_tracks:
+    path: '/matchs/{id}/tracks'
+    methods:  ['GET']
+    defaults:
+        _controller: App\Controller\MatchTracksCollectionController:getCommonsTracks
+        _api_resource_class: 'App\Entity\Track'
+        _api_collection_operation_name: 'api_match_tracks'
