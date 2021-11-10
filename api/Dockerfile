@@ -135,70 +135,92 @@ COPY --from=api_platform_caddy_builder /usr/bin/caddy /usr/bin/caddy
 COPY --from=api_platform_php /srv/api/public public/
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 
-FROM postgres:13-alpine
+# FROM postgres:13-alpine
 
-LABEL maintainer="PostGIS Project - https://postgis.net"
+# LABEL maintainer="PostGIS Project - https://postgis.net"
 
-ENV POSTGIS_VERSION 3.1.4
-ENV POSTGIS_SHA256 dfcbad0c6090c80bc59d3ea77d1adc4b3ade533a403761b4af6d9a44be1a6e48
+# ENV POSTGIS_VERSION 3.1.4
+# ENV POSTGIS_SHA256 dfcbad0c6090c80bc59d3ea77d1adc4b3ade533a403761b4af6d9a44be1a6e48
 
-#Temporary fix:
-#   for PostGIS 2.* - building a special geos
-#   reason:  PostGIS 2.5.5 is not working with GEOS 3.9.*
-ENV POSTGIS2_GEOS_VERSION tags/3.8.2
+# #Temporary fix:
+# #   for PostGIS 2.* - building a special geos
+# #   reason:  PostGIS 2.5.5 is not working with GEOS 3.9.*
+# ENV POSTGIS2_GEOS_VERSION tags/3.8.2
 
-RUN set -ex \
-    \
-    && apk add --no-cache --virtual .fetch-deps \
-        ca-certificates \
-        openssl \
-        tar \
-    \
-    && wget -O postgis.tar.gz "https://github.com/postgis/postgis/archive/$POSTGIS_VERSION.tar.gz" \
-    && echo "$POSTGIS_SHA256 *postgis.tar.gz" | sha256sum -c - \
-    && mkdir -p /usr/src/postgis \
-    && tar \
-        --extract \
-        --file postgis.tar.gz \
-        --directory /usr/src/postgis \
-        --strip-components 1 \
-    && rm postgis.tar.gz \
-    \
-    && apk add --no-cache --virtual .build-deps \
-        autoconf \
-        automake \
-        file \
-        json-c-dev \
-        libtool \
-        libxml2-dev \
-        make \
-        perl \
-        clang-dev \
-        g++ \
-        gcc \
-        gdal-dev \
-        geos-dev \
-        llvm9-dev \
-        proj-dev \
-        protobuf-c-dev \
-    && cd /usr/src/postgis \
-    && ./autogen.sh \
-# configure options taken from:
-# https://anonscm.debian.org/cgit/pkg-grass/postgis.git/tree/debian/rules?h=jessie
-    && ./configure \
-#       --with-gui \
-    && make \
-    && make install \
-    && apk add --no-cache --virtual .postgis-rundeps \
-        json-c \
-        geos \
-        gdal \
-        proj \
-        libstdc++ \
-        protobuf-c \
-    && cd / \
-    && rm -rf /usr/src/postgis \
-    && apk del .fetch-deps .build-deps
+# RUN set -ex \
+#     \
+#     && apk add --no-cache --virtual .fetch-deps \
+#         ca-certificates \
+#         openssl \
+#         tar \
+#     \
+#     && wget -O postgis.tar.gz "https://github.com/postgis/postgis/archive/$POSTGIS_VERSION.tar.gz" \
+#     && echo "$POSTGIS_SHA256 *postgis.tar.gz" | sha256sum -c - \
+#     && mkdir -p /usr/src/postgis \
+#     && tar \
+#         --extract \
+#         --file postgis.tar.gz \
+#         --directory /usr/src/postgis \
+#         --strip-components 1 \
+#     && rm postgis.tar.gz \
+#     \
+#     && apk add --no-cache --virtual .build-deps \
+#         autoconf \
+#         automake \
+#         file \
+#         json-c-dev \
+#         libtool \
+#         libxml2-dev \
+#         make \
+#         perl \
+#         clang-dev \
+#         g++ \
+#         gcc \
+#         gdal-dev \
+#         geos-dev \
+#         llvm9-dev \
+#         proj-dev \
+#         protobuf-c-dev \
+#     && cd /usr/src/postgis \
+#     && ./autogen.sh \
+# # configure options taken from:
+# # https://anonscm.debian.org/cgit/pkg-grass/postgis.git/tree/debian/rules?h=jessie
+#     && ./configure \
+# #       --with-gui \
+#     && make \
+#     && make install \
+#     && apk add --no-cache --virtual .postgis-rundeps \
+#         json-c \
+#         geos \
+#         gdal \
+#         proj \
+#         libstdc++ \
+#         protobuf-c \
+#     && cd / \
+#     && rm -rf /usr/src/postgis \
+#     && apk del .fetch-deps .build-deps
 
-COPY ./initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
-COPY ./update-postgis.sh /usr/local/bin
+# COPY ./initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
+# COPY ./update-postgis.sh /usr/local/bin
+
+
+
+FROM ubuntu:latest
+MAINTAINER docker@ekito.fr
+
+# Add crontab file in the cron directory
+ADD crontab /etc/cron.d/matchistador-cron
+
+# Give execution rights on the cron job
+RUN chmod 0644 /etc/cron.d/matchistador-cron
+
+# Create the log file to be able to run tail
+RUN touch /var/log/cron.log
+
+#Install Cron
+RUN apt-get update
+RUN apt-get -y install cron
+
+
+# Run the command on container startup
+CMD cron && tail -f /var/log/cron.log
