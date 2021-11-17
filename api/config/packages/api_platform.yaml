@@ -1,16 +1,72 @@
 api_platform:
-    title: Hello API Platform
-    version: 1.0.0
+    title: 'API Matchistador'
+    version: '2.0.0'
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     patch_formats:
         json: ['application/merge-patch+json']
+        jsonapi: ['application/vnd.api+json']
     swagger:
-        versions: [3]
-    # Mercure integration, remove if unwanted
-    mercure: ~
-    # Good cache defaults for REST APIs
+        versions: [3, 2]
+        api_keys:
+             apiKey:
+                name: Authorization
+                type: header
+    collection:
+        pagination:
+            items_per_page_parameter_name: limit
+    # formats:
+    #     json: ['application/json']
+    #     xml: ['application/xml', 'text/xml']
+    #     yaml: ['application/x-yaml']
+    #     csv: ['text/csv']
+    #     html: ['text/html']
+    #     jsonld: ['application/ld+json']
+    #     jsonhal: ['application/hal+json']
+    #     jsonapi: ['application/vnd.api+json']
     defaults:
+        pagination_client_items_per_page: true
         stateless: true
+        # Good cache defaults
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
+    eager_loading:
+        # max_joins: 10
+        fetch_partial: true
+    oauth:
+        enabled: true
+        ## OAuth Spotify
+        clientId: '%env(OAUTH_SPOTIFY_CLIENT_ID)%'
+        clientSecret: '%env(OAUTH_SPOTIFY_CLIENT_SECRET)%'
+        type: 'oauth2'
+        flow: 'authorizationCode'
+        tokenUrl: '/spotify/token'
+        authorizationUrl: 'https://accounts.spotify.com/authorize'
+        scopes:
+            []
+        ## OAuth Google
+        # clientId: '%env(OAUTH_GOOGLE_ID)%'
+        # clientSecret: '%env(OAUTH_GOOGLE_SECRET)%'
+        # type: 'oauth2'
+        # # The oauth flow grant type.
+        # flow: 'authorizationCode'
+        # # The oauth authentication url.
+        # authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth'
+        # # The oauth token url.
+        # tokenUrl: 'https://www.googleapis.com/oauth2/v4/token'
+        # # The oauth scopes.
+        # scopes:
+        #     email: 'Allow to retrieve user email'
+        ## OAuth Github
+        # clientId: '%env(OAUTH_GITHUB_ID)%'
+        # clientSecret: '%env(OAUTH_GITHUB_ID)%'
+        # type: 'oauth2'
+        # # The oauth flow grant type.
+        # flow: 'authorizationCode'
+        # # The oauth authentication url.
+        # authorizationUrl: 'https://github.com/login/oauth/authorize'
+        # # The oauth token url.
+        # tokenUrl: '/github/token'
+        # # The oauth scopes.
+        # scopes:
+        #     'user:email': 'Allow to retrieve user email'

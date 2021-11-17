@@ -1,0 +1,7 @@
+*/2 * * * *  cd /var/www && /usr/local/bin/php bin/console a:m:s >> /var/log/cron.log 2>&1
+*/2 * * * * docker exec -it matchistador-api_php_1 php /srv/api/bin/console a:m:s >> /var/log/cron.log 2>&1
+*/20 * * * *  /usr/bin/php /var/www/html/matchistador-api bin/console a:a:p >> /var/log/script.log 2>&1
+*/20 * * * *  /usr/bin/php /var/www/html/matchistador-api bin/console a:u:p >> /var/log/script.log 2>&1
+*/20 * * * *  /usr/bin/php /var/www/html/matchistador-api bin/console a:d:p >> /var/log/script.log 2>&1
+*/1 * * * *  /usr/bin/php /var/www/html/matchistador-api bin/console a:m:s > /etc/crontabs/root 2>&1
+* * * * * echo "hello stackoverflow" > /etc/crontabs/root

@@ -71,7 +71,33 @@ COPY docker/php/php-fpm.d/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
 VOLUME /var/run/php
 
-# https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
+# https://FROM ubuntu:latest
+# # MAINTAINER docker@ekito.fr
+
+# #Install Cron
+# RUN apt-get update
+# RUN apt-get -y install cron
+
+# # Add crontab file in the cron directory
+# COPY crontab /etc/cron.d/matchistador-cron
+
+# # Give execution rights on the cron job
+# RUN chmod 0644 /etc/cron.d/matchistador-cron
+
+# # Apply cron job
+# RUN crontab /etc/cron.d/matchistador-cron
+
+# # Create the log file to be able to run tail
+# RUN touch /var/log/cron.log
+
+# RUN crontab -l | { cat; echo "* * * * * echo 'Hello world' >> /var/log/cron.log 2>&1"; } | crontab -
+
+# # Create the log file to be able to run tail
+# RUN touch /var/log/cron.log
+
+
+# # Run the command on container startup
+# CMD cron && tail -f /var/log/cron.loggetcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV PATH="${PATH}:/root/.composer/vendor/bin"
 
@@ -113,8 +139,55 @@ RUN chmod +x /usr/local/bin/docker-entrypoint
 
 ENV SYMFONY_PHPUNIT_VERSION=9
 
+# RUN printf '* * * * * cd /var/www && /usr/local/bin/php bin/console a:m:s >> /var/log/cron.log 2>&1\n#' >> /root/crontab
+
+# # Add crontab file in the cron directory
+# COPY crontab /etc/crontabs/matchistador-cron
+
+# # Give execution rights on the cron job
+# RUN chmod 0644 /etc/crontabs/matchistador-cron
+
+
+# # Create the log file to be able to run tail
+# RUN touch /var/log/cron.log
+# # Apply cron job
+# COPY crontab-test /etc/crontabs/matchistador-cron
+
+# # # Give execution rights on the cron job
+# RUN chmod 600 /etc/crontabs/matchistador-cron
+
+# COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# ENTRYPOINT ["/usr/bin/supervisord"]
+
 ENTRYPOINT ["docker-entrypoint"]
+
+#####cron
+#Install Cron
+# RUN apt-get update
+# RUN apt-get -y install cron
+
+# Add crontab file in the cron directory
+# COPY crontab /etc/crontabs/matchistador-cron
+
+# # # Give execution rights on the cron job
+# # RUN chmod 0644 /etc/crontabs/matchistador-cron
+
+# # Apply cron job
+# RUN crontab /etc/crontabs/matchistador-cron
+
+
+
 CMD ["php-fpm"]
+# #cron
+# ADD crontab.txt /crontab.txt
+# ADD script.sh /script.sh
+# RUN chmod 755 /script.sh
+# RUN /usr/bin/crontab /crontab.txt
+
+
+
+# CMD ["/usr/bin/supervisord"]
 
 # "caddy" stage
 # depends on the "php" stage above
@@ -205,22 +278,36 @@ COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 
 
 
-FROM ubuntu:latest
-MAINTAINER docker@ekito.fr
+# FROM ubuntu:latest
+# # MAINTAINER docker@ekito.fr
 
-# Add crontab file in the cron directory
-ADD crontab /etc/cron.d/matchistador-cron
+# #Install Cron
+# RUN apt-get update
+# RUN apt-get -y install cron
 
-# Give execution rights on the cron job
-RUN chmod 0644 /etc/cron.d/matchistador-cron
+# # Add crontab file in the cron directory
+# COPY crontab /etc/cron.d/matchistador-cron
 
-# Create the log file to be able to run tail
-RUN touch /var/log/cron.log
+# # Give execution rights on the cron job
+# RUN chmod 0644 /etc/cron.d/matchistador-cron
 
-#Install Cron
-RUN apt-get update
-RUN apt-get -y install cron
+# # Apply cron job
+# RUN crontab /etc/cron.d/matchistador-cron
+
+# # Create the log file to be able to run tail
+# RUN touch /var/log/cron.log
 
 
-# Run the command on container startup
-CMD cron && tail -f /var/log/cron.log
+
+
+# # Run the command on container startup
+# CMD cron && tail -f /var/log/cron.log
+
+
+# FROM alpine:3.6
+
+# # copy crontabs for root user
+# COPY crontab /etc/crontabs/root
+
+# # start crond with log level 8 in foreground, output to stderr
+# CMD ["crond", "-f", "-d", "8"]
